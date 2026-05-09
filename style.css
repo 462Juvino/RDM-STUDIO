@@ -1,0 +1,162 @@
+/* --- CONFIGURAÇÃO DE CORES (VARIÁVEIS) --- */
+:root {
+    --bg-color: #0f172a;
+    --card-bg: #1e293b;
+    --text-main: #f1f5f9;
+    --text-sec: #94a3b8;
+    --destaque: #3b82f6; /* Azul RDM */
+    --hover-destaque: #2563eb;
+}
+
+/* TEMA PROFISSIONAL (Baseado no logo sonar) */
+body.theme-portifolio {
+    --bg-color: #020617;
+    --card-bg: #111827;
+    --destaque: #0ea5e9;
+    --hover-destaque: #0284c7;
+}
+
+/* Tema Painel Host (Roxo e Neon) */
+body.theme-painel {
+    --bg-color: #11081f;
+    --card-bg: #1d0b3b;
+    --destaque: #a855f7;
+    --hover-destaque: #9333ea;
+}
+
+/* --- ESTILOS GERAIS --- */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: var(--bg-color);
+    color: var(--text-main);
+    margin: 0;
+    transition: background-color 0.5s ease;
+}
+
+header {
+    background-color: var(--card-bg);
+    padding: 60px 20px;
+    text-align: center;
+    border-bottom: 5px solid var(--destaque);
+}
+
+.logo-main { max-width: 250px; margin-bottom: 20px; }
+
+main { max-width: 1100px; margin: 40px auto; padding: 0 20px; }
+
+h1 { font-size: 2.5rem; margin: 0; }
+h2 { color: var(--destaque); border-left: 5px solid var(--destaque); padding-left: 10px; margin-top: 50px; }
+p { color: var(--text-sec); line-height: 1.6; }
+
+/* --- GRID DE CARTÕES (PROFISSIONAL) --- */
+.grid-jogos {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 30px;
+}
+
+.card-jogo {
+    background-color: var(--card-bg);
+    border-radius: 15px;
+    padding: 20px;
+    text-decoration: none;
+    text-align: center;
+    display: block;
+    border: 2px solid transparent;
+    transition: 0.3s;
+    display: flex;
+    flex-direction: column;
+}
+
+.card-jogo:hover {
+    transform: translateY(-10px);
+    border-color: var(--destaque);
+    box-shadow: 0 15px 30px rgba(0,0,0,0.5);
+}
+
+.img-capa {
+    width: 100%;
+    height: 180px;
+    object-fit: cover;
+    border-radius: 10px;
+    margin-bottom: 15px;
+}
+
+/* --- BOTÕES --- */
+.btn-voltar {
+    display: inline-block;
+    color: var(--destaque);
+    text-decoration: none;
+    font-weight: bold;
+    border: 1px solid var(--destaque);
+    padding: 8px 15px;
+    border-radius: 5px;
+}
+
+.btn-voltar:hover { background-color: var(--destaque); color: #fff; }
+
+.btn-download {
+    display: block;
+    background-color: var(--destaque);
+    color: #fff;
+    text-align: center;
+    padding: 15px 30px;
+    font-weight: bold;
+    text-decoration: none;
+    border-radius: 8px;
+    margin-top: 20px;
+}
+
+.btn-download:hover { background-color: var(--hover-destaque); transform: scale(1.02); }
+
+footer { text-align: center; padding: 40px; color: #475569; font-size: 0.9rem; }
+
+/* --- SEÇÃO DE CONTATO --- */
+.contato-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 30px;
+    justify-content: center;
+    margin-top: 30px;
+}
+
+.contato-card {
+    background-color: var(--card-bg);
+    padding: 30px;
+    border-radius: 20px;
+    text-align: center;
+    width: 250px;
+    border: 1px solid #334155;
+    transition: 0.3s;
+}
+
+.contato-card:hover {
+    transform: scale(1.05);
+    border-color: var(--destaque);
+}
+
+.qr-code {
+    width: 150px;
+    height: 150px;
+    background: white;
+    padding: 10px;
+    border-radius: 10px;
+    margin: 15px 0;
+}
+
+.btn-contato {
+    display: block;
+    padding: 10px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: bold;
+    color: white;
+    margin-top: 15px;
+    transition: 0.3s;
+}
+
+.wa { background-color: #25d366; } /* Cor oficial WhatsApp */
+.wa:hover { background-color: #128c7e; }
+
+.tg { background-color: #0088cc; } /* Cor oficial Telegram */
+.tg:hover { background-color: #006699; }
