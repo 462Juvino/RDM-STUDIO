@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel ADM - RDM Studio</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .modal-jogos { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); display: none; align-items: center; justify-content: center; z-index: 2000; }
+        .modal-jogos-box { background: var(--card-bg); padding: 30px; border-radius: 15px; width: 90%; max-width: 400px; border: 2px solid var(--destaque); text-align: left; }
+        .game-checkbox { margin-bottom: 15px; font-size: 1.1rem; color: white; display: flex; align-items: center; gap: 10px; }
+        .game-checkbox input { width: 20px; height: 20px; }
+    </style>
+</head>
+<body class="theme-painel" style="--bg-color: #0f172a; --card-bg: #1e293b; --destaque: #facc15; --hover-destaque: #eab308;">
+    <header style="padding: 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 3px solid var(--destaque);">
+        <a href="index.html" class="btn-voltar">⬅ VOLTAR AO SITE</a>
+        <h1 style="color: var(--destaque); margin: 0;">👑 CENTRAL DE COMANDO ADM</h1>
+        <div id="adm-logged-info" style="color: white; font-weight: bold;"></div>
+    </header>
+
+    <main style="padding: 40px 20px; text-align: center; max-width: 1200px; margin: auto;">
+        <div style="background: var(--card-bg); padding: 30px; border-radius: 15px; border: 1px solid #334155;">
+            <h2 style="margin-top: 0; color: white;">Gerenciamento de Assinaturas e Licenças</h2>
+
+            <div style="overflow-x: auto;">
+                <table style="width: 100%; border-collapse: collapse; text-align: left; color: white;">
+                    <thead>
+                        <tr style="background-color: #0f172a; border-bottom: 2px solid var(--destaque);">
+                            <th style="padding: 15px;">Usuário (@)</th>
+                            <th style="padding: 15px;">Hierarquia e Tempo</th>
+                            <th style="padding: 15px;">Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabela-usuarios">
+                        <tr><td colspan="3" style="text-align: center; padding: 20px;">Carregando usuários do Firebase...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <div id="modal-gerenciar-jogos" class="modal-jogos">
+        <div class="modal-jogos-box">
+            <h2 style="color: var(--destaque); margin-top: 0;">Liberar Jogos Extras</h2>
+            <p id="nome-user-modal" style="color: #94a3b8; margin-bottom: 20px;"></p>
+            <input type="hidden" id="modal-userid">
+            <label class="game-checkbox"><input type="checkbox" id="check-pro_arena"> PRO Arena</label>
+            <label class="game-checkbox"><input type="checkbox" id="check-bomba_bomba"> BomBa BomBa</label>
+            <div style="display: flex; gap: 10px; margin-top: 25px;">
+                <button onclick="salvarJogos()" style="flex: 1; padding: 12px; background: #22c55e; color: black; font-weight: bold; border: none; border-radius: 8px; cursor: pointer;">Salvar Acessos</button>
+                <button onclick="fecharModalJogos()" style="flex: 1; padding: 12px; background: #ef4444; color: white; font-weight: bold; border: none; border-radius: 8px; cursor: pointer;">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getDatabase, ref, get, update, remove } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyB2LNWktWEwYLuZxwr8oc9NpcjFz3GU5qc",
+            authDomain: "authrdm-a82a6.firebaseapp.com",
+            databaseURL: "https://authrdm-a82a6-default-rtdb.firebaseio.com",
+            projectId: "authrdm-a82a6",
+            storageBucket: "authrdm-a82a6.firebasestorage.app",
+            messagingSenderId: "97459319845",
+            appId: "1:97459319845:web:8e1a16bbb6269af3b5fbcc"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const database = getDatabase(app);
+
+        const perfil = localStorage.getItem("rdm_perfil");
+        const logado = localStorage.getItem("rdm_user");
+
+        if (perfil !== "adm") {
+            window.location.href = "index.html";
+        } else {
+            document.getElementById("adm-logged-info").innerText = `ADM: @${logado}`;
+            carregarUsuarios();
+        }
+
+        async function carregarUsuarios() {
+            const tabela = document.getElementById("tabela-usuarios");
+            const usersRef = ref(database, 'usuarios');
+
+            try {
+                const snapshot = await get(usersRef);
+                if (snapshot.exists()) {
+                    tabela.innerHTML = "";
+                    const usuarios = snapshot.val();
+
+                    for (const key in usuarios) {
+                        const user = usuarios[key];
+
+                        // Calcula texto de expiração para mostrar na tela
+                        let vencimento = "Vitalício/Gratuito";
+                        if (user.expiracao) {
+                            const dataExp = new Date(user.expiracao);
+                            // Se a data de vencimento for menor que a data de hoje, mostra como expirado
+                            if (dataExp.getTime() < new Date().getTime()) {
+                                vencimento = `<span style="color:#ef4444;">Expirado em ${dataExp.toLocaleDateString('pt-BR')}</span>`;
+                            } else {
+                                vencimento = `<span style="color:#22c55e;">Vence em ${dataExp.toLocaleDateString('pt-BR')}</span>`;
+                            }
+                        }
+
+                        const selectPerfil = `
+                            <select id="perfil-${key}" style="padding: 8px; border-radius: 5px; background: #0f172a; color: white; border: 1px solid #334155;">
+                                <option value="gratuito" ${user.perfil === 'gratuito' ? 'selected' : ''}>Gratuito</option>
+                                <option value="plus" ${user.perfil === 'plus' ? 'selected' : ''}>Plus</option>
+                                <option value="plus premium" ${user.perfil === 'plus premium' ? 'selected' : ''}>Plus Premium</option>
+                                <option value="pro" ${user.perfil === 'pro' ? 'selected' : ''}>Pro</option>
+                                <option value="adm" ${user.perfil === 'adm' ? 'selected' : ''}>ADM</option>
+                            </select>
+                        `;
+
+                        // Adicionada a caixinha de meses
+                        tabela.innerHTML += `
+                            <tr style="border-bottom: 1px solid #334155;">
+                                <td style="padding: 15px; font-weight: bold; color: #38bdf8;">
+                                    @${user.usuario}<br>
+                                    <span style="font-size:0.8rem; color:#94a3b8; font-weight:normal;">Chave: ${user.chave}</span><br>
+                                    <span style="font-size:0.85rem; font-weight:normal;">${vencimento}</span>
+                                </td>
+                                <td style="padding: 15px;">
+                                    <div style="display: flex; gap: 10px; align-items: center;">
+                                        ${selectPerfil}
+                                        <input type="number" id="meses-${key}" value="1" min="1" style="width: 70px; padding: 8px; border-radius: 5px; background: #0f172a; color: white; border: 1px solid #334155;" title="Quantidade de meses da assinatura">
+                                        <span style="color:#94a3b8; font-size: 0.9rem;">Meses</span>
+                                    </div>
+                                </td>
+                                <td style="padding: 15px;">
+                                    <button onclick="abrirModalJogos('${key}')" style="background: #3b82f6; color: white; border: none; padding: 8px 12px; border-radius: 5px; font-weight: bold; cursor: pointer; margin-right: 5px;">🎮 Jogos</button>
+                                    <button onclick="salvarAlteracao('${key}')" style="background: var(--destaque); color: black; border: none; padding: 8px 12px; border-radius: 5px; font-weight: bold; cursor: pointer; margin-right: 5px;">Salvar Assinatura</button>
+                                </td>
+                            </tr>
+                        `;
+                    }
+                }
+            } catch (error) {
+                console.error(error);
+            }
+        }
+
+        // Lógica que calcula a data de expiração baseada na quantidade de meses
+        window.salvarAlteracao = async function(userId) {
+            const novoPerfil = document.getElementById(`perfil-${userId}`).value;
+            const meses = parseInt(document.getElementById(`meses-${userId}`).value) || 1;
+            const userRef = ref(database, 'usuarios/' + userId);
+
+            let dadosAtualizados = { perfil: novoPerfil };
+
+            // Se for plano pago, calcula o vencimento jogando os meses pra frente
+            if (novoPerfil === 'plus' || novoPerfil === 'plus premium' || novoPerfil === 'pro') {
+                const dataExpiracao = new Date();
+                dataExpiracao.setMonth(dataExpiracao.getMonth() + meses);
+                dadosAtualizados.expiracao = dataExpiracao.getTime(); // Salva a data em milissegundos
+            } else {
+                dadosAtualizados.expiracao = null; // Gratuito e ADM não tem vencimento
+            }
+
+            try {
+                await update(userRef, dadosAtualizados);
+                alert(`Assinatura de @${userId} atualizada para ${novoPerfil.toUpperCase()}!\nVálido por ${meses} mes(es).`);
+                window.location.reload();
+            } catch (error) {
+                alert("Erro ao salvar no Firebase.");
+            }
+        };
+
+        // --- MANTENDO O MODAL DE JOGOS IGUAL ---
+        window.abrirModalJogos = async function(userId) {
+            document.getElementById('modal-userid').value = userId;
+            document.getElementById('nome-user-modal').innerText = "Acessos manuais de @" + userId;
+            const jogosRef = ref(database, 'usuarios/' + userId + '/jogos');
+            const snapshot = await get(jogosRef);
+            document.getElementById('check-pro_arena').checked = false;
+            document.getElementById('check-bomba_bomba').checked = false;
+            if (snapshot.exists()) {
+                const jogos = snapshot.val();
+                if(jogos.pro_arena === true) document.getElementById('check-pro_arena').checked = true;
+                if(jogos.bomba_bomba === true) document.getElementById('check-bomba_bomba').checked = true;
+            }
+            document.getElementById('modal-gerenciar-jogos').style.display = 'flex';
+        };
+
+        window.fecharModalJogos = function() { document.getElementById('modal-gerenciar-jogos').style.display = 'none'; };
+
+        window.salvarJogos = async function() {
+            const userId = document.getElementById('modal-userid').value;
+            const jogosRef = ref(database, 'usuarios/' + userId + '/jogos');
+            await update(jogosRef, {
+                pro_arena: document.getElementById('check-pro_arena').checked,
+                bomba_bomba: document.getElementById('check-bomba_bomba').checked
+            });
+            alert("Acessos de jogo salvos!");
+            fecharModalJogos();
+        };
+    </script>
+</body>
+</html>
