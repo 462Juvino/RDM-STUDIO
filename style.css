@@ -160,3 +160,120 @@ footer { text-align: center; padding: 40px; color: #475569; font-size: 0.9rem; }
 
 .tg { background-color: #0088cc; } /* Cor oficial Telegram */
 .tg:hover { background-color: #006699; }
+
+/* --- BARRA DE USUÁRIO SUPERIOR --- */
+.user-bar {
+    width: 100%;
+    background-color: #0b0f19;
+    padding: 10px 20px;
+    box-sizing: border-box;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+}
+.btn-login-header {
+    background-color: var(--destaque);
+    color: #fff;
+    border: none;
+    padding: 8px 16px;
+    font-weight: bold;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+.btn-login-header:hover { background-color: var(--hover-destaque); }
+.user-logged-area { display: flex; align-items: center; gap: 15px; }
+.btn-logout { background: #ef4444; color: #fff; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; }
+
+/* --- MODAL DE LOGIN (JANELA FLUTUANTE) --- */
+.modal-overlay {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background-color: rgba(0, 0, 0, 0.85);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+.modal-content {
+    background-color: var(--card-bg);
+    padding: 40px;
+    border-radius: 15px;
+    width: 100%;
+    max-width: 400px;
+    border: 2px solid var(--destaque);
+    position: relative;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+}
+.close-modal {
+    position: absolute;
+    top: 15px; right: 20px;
+    font-size: 30px; color: var(--text-sec);
+    cursor: pointer;
+}
+.close-modal:hover { color: #fff; }
+.input-group { margin-bottom: 20px; display: flex; flex-direction: column; text-align: left; }
+.input-group label { margin-bottom: 8px; font-weight: bold; color: var(--text-main); }
+.input-group input {
+    padding: 12px; background: #0f172a; border: 1px solid #334155;
+    color: #fff; border-radius: 8px; font-size: 1rem;
+}
+.input-group input:focus { border-color: var(--destaque); outline: none; }
+.btn-submit-login {
+    width: 100%; padding: 12px; background-color: var(--destaque);
+    color: white; border: none; font-size: 1.1rem; font-weight: bold;
+    border-radius: 8px; cursor: pointer; transition: 0.3s;
+}
+.btn-submit-login:hover { background-color: var(--hover-destaque); }
+.error-msg { color: #ef4444; margin-top: 15px; font-size: 0.9rem; text-align: center; }
+
+.btn-planos-hero {
+            margin-top: 25px;
+            background: linear-gradient(45deg, #facc15, #eab308);
+            color: #000;
+            border: none;
+            padding: 15px 35px;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 1.1rem;
+            box-shadow: 0 4px 15px rgba(250, 204, 21, 0.3);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .btn-planos-hero:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(250, 204, 21, 0.5);
+        }
+
+/* --- JOGOS BLOQUEADOS (PRETO E BRANCO) --- */
+.card-jogo.bloqueado img {
+            filter: grayscale(100%);
+            opacity: 0.5;
+            transition: 0.3s;
+}
+
+.card-jogo.bloqueado:hover img {
+            filter: grayscale(90%);
+}
+
+/* Botão dinâmico de Adquirir Plano */
+.btn-adquirir-plano {
+            display: block;
+            width: 90%;
+            margin: 10px auto;
+            background: #ef4444;
+            color: white;
+            padding: 8px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            font-weight: bold;
+            text-align: center;
+            border: none;
+            cursor: pointer;
+            transition: 0.2s;
+}
+
+.btn-adquirir-plano:hover {
+            background: #dc2626;
+            transform: scale(1.03);
+}
