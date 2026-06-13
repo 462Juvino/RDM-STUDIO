@@ -28,8 +28,31 @@
             </div>
         </section>
 
-        <a href="https://drive.google.com/file/d/1P-V-q_Vr8-oACCWFJbHOvpJ8QQIWq8Bp/view?usp=drive_link" class="btn-download">⬇ BAIXAR PAINEL HOST</a>
+        <div id="game-access-area" style="margin-top: 30px;">
+            <button class="btn-download" style="background: #64748b; cursor: not-allowed;">Verificando Licença...</button>
+        </div>
     </main>
     <footer>&copy; 2026 RDM Studio.</footer>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const logado = localStorage.getItem("rdm_user");
+            const perfil = localStorage.getItem("rdm_perfil");
+            const accessArea = document.getElementById("game-access-area");
+            const linkDownload = "https://drive.google.com/file/d/1P-V-q_Vr8-oACCWFJbHOvpJ8QQIWq8Bp/view?usp=drive_link";
+
+            if (!logado) {
+                accessArea.innerHTML = `<button onclick="alert('Volte para a página inicial e faça login para acessar!')" class="btn-download" style="background: #ef4444; color: white;">🔒 FAÇA LOGIN PARA BAIXAR</button>`;
+                return;
+            }
+
+            // Libera apenas para os 3 planos superiores
+            if (perfil === "plus premium" || perfil === "pro" || perfil === "adm") {
+                accessArea.innerHTML = `<a href="${linkDownload}" target="_blank" class="btn-download" style="background: #22c55e; color: black; font-weight: bold;">⬇ BAIXAR PAINEL HOST</a>`;
+            } else {
+                accessArea.innerHTML = `<button onclick="alert('Ferramenta exclusiva para planos PLUS PREMIUM e PRO! Adquira um plano superior para ter acesso.')" class="btn-download" style="background: #64748b; color: white; cursor: not-allowed;">🔒 EXCLUSIVO PARA PLUS PREMIUM OU SUPERIOR</button>`;
+            }
+        });
+    </script>
 </body>
 </html>
