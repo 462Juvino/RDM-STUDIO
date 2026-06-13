@@ -45,8 +45,20 @@
             <h2 style="color: var(--destaque); margin-top: 0;">Liberar Jogos Extras</h2>
             <p id="nome-user-modal" style="color: #94a3b8; margin-bottom: 20px;"></p>
             <input type="hidden" id="modal-userid">
-            <label class="game-checkbox"><input type="checkbox" id="check-pro_arena"> PRO Arena</label>
-            <label class="game-checkbox"><input type="checkbox" id="check-bomba_bomba"> BomBa BomBa</label>
+            <div style="max-height: 320px; overflow-y: auto; padding-right: 10px; border: 1px solid #334155; padding: 10px; border-radius: 8px; background: #0f172a;">
+                <label class="game-checkbox"><input type="checkbox" id="check-bomba_bomba"> 🔥 BomBa BomBa (Destaque)</label>
+                <label class="game-checkbox"><input type="checkbox" id="check-pro_arena"> 🎮 PRO Arena</label>
+                <label class="game-checkbox"><input type="checkbox" id="check-roblox"> 💃 Roblox Dance</label>
+                <label class="game-checkbox"><input type="checkbox" id="check-x1"> ⚔️ Arena X1</label>
+                <label class="game-checkbox"><input type="checkbox" id="check-estope"> 🛑 ESTOPE</label>
+                <label class="game-checkbox"><input type="checkbox" id="check-war"> 🗺️ War: Estados Brasileiros</label>
+                <label class="game-checkbox"><input type="checkbox" id="check-fc"> ⚽ RDM FC</label>
+                <label class="game-checkbox"><input type="checkbox" id="check-stickman"> 🧍 Stickman Chaos</label>
+                <label class="game-checkbox"><input type="checkbox" id="check-kof"> 🕹️ KOF TikTok</label>
+                <label class="game-checkbox"><input type="checkbox" id="check-host"> 🎙️ Painel Host + Narrador</label>
+                <label class="game-checkbox"><input type="checkbox" id="check-snake"> 🐍 Snake Battle</label>
+                <label class="game-checkbox"><input type="checkbox" id="check-brain"> 🧠 BrainBom & Anagrama</label>
+            </div>
             <div style="display: flex; gap: 10px; margin-top: 25px;">
                 <button onclick="salvarJogos()" style="flex: 1; padding: 12px; background: #22c55e; color: black; font-weight: bold; border: none; border-radius: 8px; cursor: pointer;">Salvar Acessos</button>
                 <button onclick="fecharModalJogos()" style="flex: 1; padding: 12px; background: #ef4444; color: white; font-weight: bold; border: none; border-radius: 8px; cursor: pointer;">Cancelar</button>
@@ -152,36 +164,54 @@
 
             let dadosAtualizados = { perfil: novoPerfil };
 
-            // Se for plano pago, calcula o vencimento jogando os meses pra frente
             if (novoPerfil === 'plus' || novoPerfil === 'plus premium' || novoPerfil === 'pro') {
-                const dataExpiracao = new Date();
-                dataExpiracao.setMonth(dataExpiracao.getMonth() + meses);
-                dadosAtualizados.expiracao = dataExpiracao.getTime(); // Salva a data em milissegundos
+                // Puxa a ficha do usuário atual para analisar o vencimento existente
+                const snapUser = await get(userRef);
+                let expiracaoAtual = snapUser.exists() ? snapUser.val().expiracao : null;
+
+                let dataBase = new Date();
+
+                // MÁGICA DO SAAS: Se ele já tiver licença ativa e VÁLIDA, soma a partir de quando ela iria vencer!
+                if (expiracaoAtual && expiracaoAtual > Date.now()) {
+                    dataBase = new Date(expiracaoAtual);
+                }
+
+                dataBase.setMonth(dataBase.getMonth() + meses);
+                dadosAtualizados.expiracao = dataBase.getTime();
             } else {
-                dadosAtualizados.expiracao = null; // Gratuito e ADM não tem vencimento
+                dadosAtualizados.expiracao = null; // Gratuito e ADM voltam a ser vitalícios sem tempo
             }
 
             try {
                 await update(userRef, dadosAtualizados);
-                alert(`Assinatura de @${userId} atualizada para ${novoPerfil.toUpperCase()}!\nVálido por ${meses} mes(es).`);
+                alert(`Licença de @${userId} ajustada com sucesso!`);
                 window.location.reload();
             } catch (error) {
                 alert("Erro ao salvar no Firebase.");
             }
         };
 
-        // --- MANTENDO O MODAL DE JOGOS IGUAL ---
+        // Array com os IDs exatos de todos os jogos mapeados no auth.js
+        const listaJogosIds = ["bomba_bomba", "pro_arena", "roblox", "x1", "estope", "war", "fc", "stickman", "kof", "host", "snake", "brain"];
+
         window.abrirModalJogos = async function(userId) {
             document.getElementById('modal-userid').value = userId;
             document.getElementById('nome-user-modal').innerText = "Acessos manuais de @" + userId;
+
             const jogosRef = ref(database, 'usuarios/' + userId + '/jogos');
             const snapshot = await get(jogosRef);
-            document.getElementById('check-pro_arena').checked = false;
-            document.getElementById('check-bomba_bomba').checked = false;
+
+            // Reseta todas as caixinhas para falso antes de aplicar
+            listaJogosIds.forEach(id => {
+                document.getElementById(`check-${id}`).checked = false;
+            });
+
             if (snapshot.exists()) {
                 const jogos = snapshot.val();
-                if(jogos.pro_arena === true) document.getElementById('check-pro_arena').checked = true;
-                if(jogos.bomba_bomba === true) document.getElementById('check-bomba_bomba').checked = true;
+                // Marca apenas os jogos que o usuário possui ativos no banco
+                listaJogosIds.forEach(id => {
+                    if(jogos[id] === true) document.getElementById(`check-${id}`).checked = true;
+                });
             }
             document.getElementById('modal-gerenciar-jogos').style.display = 'flex';
         };
@@ -191,12 +221,20 @@
         window.salvarJogos = async function() {
             const userId = document.getElementById('modal-userid').value;
             const jogosRef = ref(database, 'usuarios/' + userId + '/jogos');
-            await update(jogosRef, {
-                pro_arena: document.getElementById('check-pro_arena').checked,
-                bomba_bomba: document.getElementById('check-bomba_bomba').checked
+
+            let dadosJogos = {};
+            listaJogosIds.forEach(id => {
+                dadosJogos[id] = document.getElementById(`check-${id}`).checked;
             });
-            alert("Acessos de jogo salvos!");
-            fecharModalJogos();
+
+            try {
+                await update(jogosRef, dadosJogos);
+                alert("Acessos do portfólio salvos com sucesso!");
+                fecharModalJogos();
+                window.location.reload();
+            } catch (err) {
+                alert("Erro ao salvar jogos.");
+            }
         };
     </script>
 </body>
