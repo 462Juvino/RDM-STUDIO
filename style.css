@@ -277,3 +277,30 @@ footer { text-align: center; padding: 40px; color: #475569; font-size: 0.9rem; }
             background: #dc2626;
             transform: scale(1.03);
 }
+
+
+
+
+/* --- MOSAICO DE FUNDO (EFEITO COLANTES FADE) --- */
+.mosaico-fundo {
+    position: absolute; /* Mudou de fixed para absolute para ficar dentro do header */
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0; /* Fica atrás do conteúdo do header */
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    overflow: hidden;
+    pointer-events: none;
+    opacity: 0.05;
+}
+
+.mosaico-fundo img {
+    width: 120px; /* Tamanho fixo para os colantes não distorcerem no header */
+    height: 120px;
+    object-fit: cover;
+    margin: 0;
+    padding: 0;
+}
