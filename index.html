@@ -253,5 +253,51 @@
             document.getElementById('planos-modal').style.display = show ? 'flex' : 'none';
         }
     </script>
+
+<!-- 📡 SCRIPT KEEP-ALIVE: MANTÉM A TORRE DE CONTROLE ACORDADA -->
+    <script>
+        let torreAwakeSocket = null;
+
+        function despertarTorreDeControle() {
+            // Se já estiver conectado e funcionando perfeitamente, não faz nada (evita congestionamento)
+            if (torreAwakeSocket && torreAwakeSocket.readyState === WebSocket.OPEN) {
+                console.log("📡 [Keep-Alive] A Torre de Controle já está online e operante.");
+                return;
+            }
+
+            // Se estiver no meio de uma tentativa de conexão, aguarda e não manda outra requisição
+            if (torreAwakeSocket && torreAwakeSocket.readyState === WebSocket.CONNECTING) {
+                return;
+            }
+
+            console.log("🔄 [Keep-Alive] Enviando pulso para despertar a Torre de Controle...");
+
+            try {
+                torreAwakeSocket = new WebSocket("wss://torre-de-controle-rdm.onrender.com:443/");
+
+                torreAwakeSocket.onopen = () => {
+                    console.log("✅ [Keep-Alive] Torre de Controle despertada com sucesso!");
+                    // Envia um ping inofensivo apenas para registrar atividade no servidor
+                    torreAwakeSocket.send(JSON.stringify({ action: "ping", origin: "website_visitor" }));
+                };
+
+                torreAwakeSocket.onerror = (error) => {
+                    console.log("⚠️ [Keep-Alive] Torre de Controle dormindo ou indisponível no momento.");
+                };
+
+                torreAwakeSocket.onclose = () => {
+                    torreAwakeSocket = null;
+                };
+            } catch (e) {
+                console.error("Erro no Keep-Alive:", e);
+            }
+        }
+
+        // 1. Dispara o pulso imediatamente assim que qualquer pessoa entra no site
+        despertarTorreDeControle();
+
+        // 2. Aciona o verificador a cada 2 minutos (120.000 ms) para garantir que ela não durma
+        setInterval(despertarTorreDeControle, 120000);
+    </script>
 </body>
 </html>
