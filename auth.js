@@ -35,27 +35,33 @@ function limparUsuario(user) {
 // 2. LÓGICA DE LOGIN (VERIFICA TEXTO PURO NO BANCO)
 async function handleLogin(event) {
     event.preventDefault();
-    const tiktokUser = limparUsuario(document.getElementById("login-email").value);
+
+    // Pega o nome EXATO que o usuário digitou (com o PONTO)
+    let originalUser = document.getElementById("login-email").value.trim().toLowerCase();
+    if (originalUser.startsWith("@")) originalUser = originalUser.substring(1);
+
+    // Cria a versão segura para o Firebase (com UNDERLINE)
+    const tiktokUser = limparUsuario(originalUser);
+
     const chaveDigitada = document.getElementById("login-password").value.trim();
     const errorMsg = document.getElementById("login-error");
 
-    if (!tiktokUser || !chaveDigitada) {
+    if (!originalUser || !chaveDigitada) {
         errorMsg.innerText = "Preencha todos os campos!";
         return;
     }
 
     try {
-        // Procura o usuário direto no nó 'usuarios/nome_do_usuario'
         const userRef = ref(database, 'usuarios/' + tiktokUser);
         const snapshot = await get(userRef);
 
         if (snapshot.exists()) {
             const userData = snapshot.val();
 
-            // Verifica se a chave/senha bate
             if (userData.chave === chaveDigitada) {
-                // Guarda os dados da sessão no navegador do usuário
-                localStorage.setItem("rdm_user", tiktokUser);
+                // 🪄 MÁGICA AQUI: Salvamos DUAS variáveis no navegador!
+                localStorage.setItem("rdm_user", tiktokUser);          // Com "_" para o Firebase
+                localStorage.setItem("rdm_user_tiktok", originalUser); // Com "." para a Torre de Controle
                 localStorage.setItem("rdm_perfil", userData.perfil);
 
                 errorMsg.style.color = "#22c55e";
