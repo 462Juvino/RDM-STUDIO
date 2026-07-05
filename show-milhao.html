@@ -37,56 +37,7 @@
     </main>
     <footer>&copy; 2026 RDM Studio.</footer>
 
-    <script src="script.js"></script>
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
-        // Configuração original do Firebase
-        const firebaseConfig = {
-            apiKey: "AIzaSyB2LNWktWEwYLuZxwr8oc9NpcjFz3GU5qc",
-            authDomain: "authrdm-a82a6.firebaseapp.com",
-            databaseURL: "https://authrdm-a82a6-default-rtdb.firebaseio.com",
-            projectId: "authrdm-a82a6"
-        };
-        const app = initializeApp(firebaseConfig);
-        const db = getDatabase(app);
-
-        // Filtro anti-ponto para o Firebase
-        function getSafeUser() {
-            let user = localStorage.getItem('rdm_user') || "visitante";
-            return user.replace(/[\.\#\$\[\]]/g, "_"); // Troca pontos e símbolos proibidos por _
-        }
-
-        setTimeout(() => {
-            const safeUser = getSafeUser();
-
-            // Escuta as configurações da nuvem e joga pro LocalStorage (para controle remoto)
-            onValue(ref(db, `usuarios/${safeUser}/controle_remoto/show_config`), (snapshot) => {
-                if(snapshot.exists()) {
-                    localStorage.setItem('tiktok_game_settings', JSON.stringify(snapshot.val()));
-                }
-            });
-
-            // Escuta o Banco de Perguntas vindo da Nuvem (para controle remoto)
-            onValue(ref(db, `usuarios/${safeUser}/controle_remoto/show_questions`), (snapshot) => {
-                if(snapshot.exists()) {
-                    let parsed = snapshot.val();
-                    localStorage.setItem('custom_questions', JSON.stringify(parsed));
-                    if(typeof window.aplicarNovasPerguntas === 'function') {
-                        window.aplicarNovasPerguntas(parsed); // Atualiza o jogo na hora!
-                    }
-                }
-            });
-
-            // Escuta os Comandos dos botões remotos (Lançar/Zerar) (para controle remoto)
-            onValue(ref(db, `usuarios/${safeUser}/controle_remoto/show_comando`), (snapshot) => {
-                if(snapshot.exists()) {
-                    localStorage.setItem('show_command', JSON.stringify(snapshot.val()));
-                }
-            });
-        }, 1500);
-    </script>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
