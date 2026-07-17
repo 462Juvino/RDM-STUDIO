@@ -2,17 +2,18 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Painel Host - RDM Studio</title>
     <link rel="stylesheet" href="style.css">
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7445704187291505" crossorigin="anonymous"></script>
 </head>
-<body class="theme-painel">
+<body class="theme-painel" style="--bg-color: #0f172a; --card-bg: #1e293b; --destaque: #8b5cf6; --hover-destaque: #a855f7;">
     <header style="padding: 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 3px solid var(--destaque);">
         <a href="index.html" class="btn-voltar">⬅ VOLTAR</a>
         <img src="imagens/logo.png" alt="RDM Studio" style="height: 40px;">
     </header>
 
-    <main style="text-align: center;">
+    <main style="text-align: center; padding-bottom: 50px;">
         <img src="imagens/host.png" alt="Logo Painel Host" style="max-width: 250px; border-radius: 25px; margin: 20px auto; display: block; box-shadow: 0 10px 30px rgba(0,0,0,0.6);">
         <h1 style="margin-bottom: 40px;">PAINEL HOST + NARRADOR</h1>
 
@@ -23,36 +24,79 @@
 
         <section style="text-align: left;">
             <h2>📺 TUTORIAL DA FERRAMENTA</h2>
-            <div style="background: #000; border-radius: 15px; height: 500px; display: flex; align-items: center; justify-content: center; margin-top: 20px; border: 2px solid var(--card-bg); color: var(--text-sec);">
+            <div style="background: #000; border-radius: 15px; height: 500px; display: flex; align-items: center; justify-content: center; margin-top: 20px; border: 2px solid var(--card-bg); color: var(--text-sec); overflow: hidden;">
                 <iframe width="100%" height="500" src="https://www.youtube.com/embed/n-9Bt6wrgUw?si=oHDXiKGBrwdkN1oY" frameborder="0" allowfullscreen></iframe>
             </div>
         </section>
 
-        <div id="game-access-area" style="margin-top: 30px;">
-            <button class="btn-download" style="background: #64748b; cursor: not-allowed;">Verificando Licença...</button>
+        <!-- ÁREA DE BOTÕES -->
+        <div style="margin-top: 40px; display: flex; flex-direction: column; gap: 15px; align-items: center;">
+
+            <!-- BOTÃO DE DOWNLOAD SEMPRE LIVRE -->
+            <a href="https://drive.google.com/file/d/1P-V-q_Vr8-oACCWFJbHOvpJ8QQIWq8Bp/view?usp=drive_link" target="_blank" class="btn-download" style="background: #3b82f6; color: white; font-weight: bold; width: 100%; max-width: 500px;">⬇ BAIXAR EXECUTÁVEL (LIVRE)</a>
+
+            <!-- ÁREA DO PAINEL WEB (BLOQUEADA PELA LICENÇA) -->
+            <div id="game-access-area" style="width: 100%; max-width: 500px;">
+                <button class="btn-download" style="background: #64748b; cursor: not-allowed; width: 100%;">Verificando Licença...</button>
+            </div>
+
         </div>
     </main>
     <footer>&copy; 2026 RDM Studio.</footer>
 
-    <script>
-        document.addEventListener("DOMContentLoaded", () => {
-            const logado = localStorage.getItem("rdm_user");
-            const perfil = localStorage.getItem("rdm_perfil");
-            const accessArea = document.getElementById("game-access-area");
-            const linkDownload = "https://drive.google.com/file/d/1P-V-q_Vr8-oACCWFJbHOvpJ8QQIWq8Bp/view?usp=drive_link";
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
+        // SUAS CHAVES DO FIREBASE
+        const firebaseConfig = {
+            apiKey: "AIzaSyB2LNWktWEwYLuZxwr8oc9NpcjFz3GU5qc",
+            authDomain: "authrdm-a82a6.firebaseapp.com",
+            databaseURL: "https://authrdm-a82a6-default-rtdb.firebaseio.com",
+            projectId: "authrdm-a82a6",
+            storageBucket: "authrdm-a82a6.firebasestorage.app",
+            messagingSenderId: "97459319845",
+            appId: "1:97459319845:web:8e1a16bbb6269af3b5fbcc"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const database = getDatabase(app);
+
+        // Puxa o @ validado no navegador
+        const logado = localStorage.getItem("rdm_user");
+        const accessArea = document.getElementById("game-access-area");
+        const linkPainelWeb = "https://462juvino.github.io/Painel-do-host/"; // O link que sofre o bloqueio VIP
+
+        async function checarAcessoPainel() {
             if (!logado) {
-                accessArea.innerHTML = `<button onclick="alert('Volte para a página inicial e faça login para acessar!')" class="btn-download" style="background: #ef4444; color: white;">🔒 FAÇA LOGIN PARA BAIXAR</button>`;
+                accessArea.innerHTML = `<button onclick="alert('Faça login na tela inicial para acessar o Painel Web!')" class="btn-download" style="background: #ef4444; color: white; width: 100%;">🔒 FAÇA LOGIN PARA ACESSAR A WEB</button>`;
                 return;
             }
 
-            // Libera apenas para os 3 planos superiores
-            if (perfil === "plus premium" || perfil === "pro" || perfil === "adm") {
-                accessArea.innerHTML = `<a href="${linkDownload}" target="_blank" class="btn-download" style="background: #22c55e; color: black; font-weight: bold;">⬇ BAIXAR PAINEL HOST</a>`;
-            } else {
-                accessArea.innerHTML = `<button onclick="alert('Ferramenta exclusiva para planos PLUS PREMIUM e PRO! Adquira um plano superior para ter acesso.')" class="btn-download" style="background: #64748b; color: white; cursor: not-allowed;">🔒 EXCLUSIVO PARA PLUS PREMIUM OU SUPERIOR</button>`;
+            try {
+                // Vai no banco checar o perfil real da pessoa
+                const userRef = ref(database, `usuarios/${logado}`);
+                const snapshot = await get(userRef);
+
+                if (snapshot.exists()) {
+                    const perfilReal = snapshot.val().perfil;
+                    localStorage.setItem("rdm_perfil", perfilReal); // Força atualização local
+
+                    if (perfilReal === "plus premium" || perfilReal === "pro" || perfilReal === "adm") {
+                        accessArea.innerHTML = `<a href="${linkPainelWeb}" target="_blank" class="btn-download" style="background: #22c55e; color: black; font-weight: bold; width: 100%;">🌐 ACESSAR PAINEL WEB</a>`;
+                    } else {
+                        accessArea.innerHTML = `<button onclick="alert('O Painel Web é exclusivo dos planos PLUS PREMIUM e PRO! Adquira um plano superior no nosso WhatsApp.')" class="btn-download" style="background: #64748b; color: white; cursor: not-allowed; font-size: 0.9rem; width: 100%;">🔒 WEB EXCLUSIVO PLUS PREMIUM/PRO</button>`;
+                    }
+                } else {
+                    accessArea.innerHTML = `<button onclick="alert('Usuário não encontrado no banco de dados!')" class="btn-download" style="background: #ef4444; color: white; width: 100%;">🔒 CONTA INVÁLIDA</button>`;
+                }
+            } catch (error) {
+                console.error("Erro ao verificar acesso ao Painel Host:", error);
+                accessArea.innerHTML = `<button class="btn-download" style="background: #64748b; color: white; cursor: not-allowed; width: 100%;">Erro de Conexão. Tente Novamente.</button>`;
             }
-        });
+        }
+
+        checarAcessoPainel();
     </script>
 </body>
 </html>
